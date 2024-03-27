@@ -14,12 +14,16 @@ import (
 
 func usage(code int) {
 	c := os.Args[0]
-	help := `Usage: {{.c}} [options] "command args template ..."
+	if i := strings.LastIndex(c, string(os.PathSeparator)); i >= 0 {
+		c = c[i+1:]
+	}
+	help := `Usage: {{.c}} [options] -t "command template ..."
 Available options:
-  -h|--help                                show this help
-  --in=<input>, --in|-i <input>            read each element from file or stdin
-  --sep=<separator>, --sep|-s <separator>  separator for command and its arguments
-  --cpu=<number>, --cpu|-n <number>        number of CPU cores to use
+  -h|--help                                         show this help
+  --in=..., --in|-i <input>                         read each element from file or stdin
+  --sep=..., --sep|-s <separator>                   separator for command and its arguments
+  --cpu=..., --cpu|-n <number>                      number of CPU cores to use
+  --template=..., --template|-t <command template>  command template to be executed
 `
 	e := template.Must(template.New("help").Parse(help)).Execute(os.Stdout, map[string]string{"c": c})
 	if e != nil {
@@ -101,8 +105,8 @@ func main() {
 			}
 			i += o
 			cfg.number, _ = strconv.ParseInt(*v, 10, 64)
-		case arg == "-t" || arg == "--tpl" || strings.HasPrefix(arg, "--tpl="):
-			m, v, o := parse(false, "-t", "--tpl", arg, os.Args[i+1:]...)
+		case arg == "-t" || arg == "--template" || strings.HasPrefix(arg, "--template="):
+			m, v, o := parse(false, "-t", "--template", arg, os.Args[i+1:]...)
 			if !m {
 				usage(1)
 			}
@@ -146,7 +150,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Starting job: %s", cfg.String())
+	fmt.Printf("Starting job: %s\n", cfg.String())
 
 	var mover = multi.NewMover(int(cfg.number), cfg.command, cfg.sep, tpl)
 	defer mover.Stop()

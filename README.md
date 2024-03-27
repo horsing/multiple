@@ -13,20 +13,57 @@
 
 ## Overview
 
-Multiple is an open-source command line tool, which can read input and separate into multiple subtasks to accelerate large scale jobs' execution.
+Multiple is an open-source command line tool, which can read input and separate into multiple subtasks to accelerate
+large scale jobs' execution.
 
-## Partners and Users
+## Usage
 
-There is the list of users and success stories [ADOPTERS.md](ADOPTERS.md).
+### Introduction
+
+```text
+Usage: multiple.exe [options] -t "command template ..."
+Available options:
+  -h|--help                                         show this help
+  --in=..., --in|-i <input>                         read each element from file or stdin
+  --sep=..., --sep|-s <separator>                   separator for command and its arguments
+  --cpu=..., --cpu|-n <number>                      number of CPU cores to use
+  --template=..., --template|-t <command template>  command template to be executed
+```
+
+### Batch rename files
+
+```bash
+find . -regex ".*\.jpg" | multiple -t 'mv {{.self}} {{trim ".jpg" .self}}.png'
+```
+
+### Batch convert files' encoding
+
+```powershell
+gci -r -fi "*.java.gbk" | multiple -t 'iconv -f GBK -t UTF8 -o {{trim .self|trim \".gbk\"}} {{trim .self}}'
+```
+
+> Former command will find all `.java.gbk` files in current directory recursively, then convert them to `.java` files
+> from encoding "GBK" to "UTF8".
+
+### Builtin functions
+
+- `trim`: Trim the prefix or suffix of a string.
+
+> 1. `{{trim .self}}` will trim all white spaces from a string.
+> 2. `{{trim "pattern" .self}}` will trim `pattern` from a string(both head and tail).
+> 3. `{{trim "prefix" "suffix" .self}}` will trim the prefix `prefix` and suffix `suffix` from a string.
+
+- `add`/`sub`/`mul`/`div`: Arithmetic operations.
 
 ## License
 
 Multiple is licensed under the [MIT](https://opensource.org/license/mit).
-For detail see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+For detail see [LICENSE](LICENSE).
 
 ## Note
 
-The master branch may be in an unstable or even broken state during development. Please use releases instead of the master branch in order to get a stable set of binaries.
+The master branch may be in an unstable or even broken state during development. Please use releases instead of the
+master branch in order to get a stable set of binaries.
 
 ## Star History
 
