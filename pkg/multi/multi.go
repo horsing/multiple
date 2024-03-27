@@ -58,18 +58,21 @@ func processor(i int, biz chan string, admin chan int, t *template.Template, sep
 		buf := bytes.Buffer{}
 		err := t.Execute(&buf, map[string]interface{}{"self": item})
 		if err != nil {
-			logger.Error(err, "render cmd", "id", i)
+			logger.Error(err, "build", "id", i)
 			continue
 		}
 		raw := buf.String()
+
 		cmd := strings.Split(raw, sep)
 		c := exec.Command(cmd[0], cmd[1:]...)
-		if err = c.Start(); err != nil {
-			logger.Error(err, "exec", "id", i, "cmd", raw)
-			panic(err)
-		}
 
-		logger.Info("finish", "id", i, "cmd", raw)
+		if err = c.Start(); err != nil {
+			logger.Error(err, "start", "id", i, "cmd", raw)
+		} else if err = c.Wait(); err != nil {
+			logger.Error(err, "exec", "id", i, "cmd", raw)
+		} else {
+			logger.Info("finish", "id", i, "cmd", raw)
+		}
 	}
 }
 
