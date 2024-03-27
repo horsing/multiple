@@ -155,10 +155,8 @@ func main() {
 	var mover = multi.NewMover(int(cfg.number), cfg.command, cfg.sep, tpl)
 	defer mover.Stop()
 
-	if mover != nil {
-		scanner := bufio.NewScanner(cfg.in)
-		for scanner.Scan() {
-			mover.Submit(scanner.Text())
-		}
+	scanner := bufio.NewScanner(cfg.in)
+	for scanner.Scan() {
+		mover.Submit(scanner.Text())
 	}
 }

@@ -88,14 +88,11 @@ func (m *mover) Stop() {
 	for _, ch := range m.channels {
 		ch <- ":exit"
 	}
-	stopped := make([]int, 0, m.size)
-	for {
+	stopped := m.size
+	for stopped > 0 {
 		i := <-m.admin
 		logger.Info("Worker stopped", "worker", i)
-		stopped = append(stopped, i)
-		if len(stopped) >= m.size {
-			break
-		}
+		stopped -= 1
 	}
 	logger.Info("All workers have been stopped. Goodbye!")
 }
