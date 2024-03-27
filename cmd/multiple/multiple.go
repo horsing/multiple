@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"html/template"
 	"os"
 	"runtime"
@@ -32,7 +33,7 @@ func open(f string) (file *os.File, fn func(*os.File)) {
 	if err != nil {
 		panic(err)
 	}
-	fn = func(f *os.File) { f.Close() }
+	fn = func(f *os.File) { _ = f.Close() }
 	return
 }
 
@@ -57,7 +58,11 @@ type config struct {
 	command string
 }
 
-var cfg = &config{os.Stdin, " ", int64(runtime.NumCPU()) - 1, "echo {{.file}}"}
+func (c config) String() string {
+	return "in: [" + c.in.Name() + "], sep: [" + c.sep + "], number: [" + strconv.FormatInt(c.number, 10) + "], command: [" + c.command + "]"
+}
+
+var cfg = &config{os.Stdin, " ", int64(runtime.NumCPU()) - 1, "echo {{.self}}"}
 
 func main() {
 	for i := 1; i < len(os.Args); i++ {
@@ -109,7 +114,41 @@ func main() {
 		}
 	}
 
-	var mover = multi.NewMover(int(cfg.number), cfg.command, cfg.sep)
+	tpl, err := template.New("").Funcs(map[string]interface{}{
+		"add": func(l, r int) int { return l + r },
+		"sub": func(l, r int) int { return l - r },
+		"mul": func(l, r int) int { return l * r },
+		"div": func(l, r int) int { return l / r },
+		"trim": func(args ...string) (r string) {
+			size := len(args)
+			switch {
+			case size == 1:
+				// trim s
+				r = args[0]
+				r = strings.TrimSpace(r)
+			case size == 2:
+				// trim pat s
+				r = args[1]
+				r = strings.TrimPrefix(r, args[0])
+				r = strings.TrimSuffix(r, args[0])
+			case size >= 3:
+				// trim prefix suffix s
+				r = args[2]
+				r = strings.TrimPrefix(r, args[0])
+				r = strings.TrimSuffix(r, args[1])
+			default:
+				r = ""
+			}
+			return
+		},
+	}).Parse(cfg.command)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Starting job: %s", cfg.String())
+
+	var mover = multi.NewMover(int(cfg.number), cfg.command, cfg.sep, tpl)
 	defer mover.Stop()
 
 	if mover != nil {

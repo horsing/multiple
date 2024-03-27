@@ -23,22 +23,13 @@ type mover struct {
 	channels []chan string
 	pos      int
 	admin    chan int
+	tpl      *template.Template
 }
 
-func NewMover(n int, cmd, sep string) Executor {
+func NewMover(n int, cmd, sep string, tpl *template.Template) Executor {
 	workers := int(math.Min(float64(n), float64(runtime.NumCPU()-1)))
 	channels := make([]chan string, workers)
 	admin := make(chan int, workers)
-
-	tpl, err := template.New("").Funcs(map[string]interface{}{
-		"add": func(l, r int) int { return l + r },
-		"sub": func(l, r int) int { return l - r },
-		"mul": func(l, r int) int { return l * r },
-		"div": func(l, r int) int { return l / r },
-	}).Parse(cmd)
-	if err != nil {
-		panic(err)
-	}
 
 	for i := 0; i < workers; i++ {
 		channels[i] = make(chan string, 100)
@@ -51,22 +42,21 @@ func NewMover(n int, cmd, sep string) Executor {
 		channels: channels,
 		pos:      0,
 		admin:    admin,
+		tpl:      tpl,
 	}
 }
 
 func processor(i int, biz chan string, admin chan int, t *template.Template, sep string) {
 	for {
-		file := <-biz
-		switch file {
+		item := <-biz
+		switch item {
 		case ":exit":
 			admin <- i
 			return
 		}
 
-		logger.Info("process", "id", i, "file", file)
-
 		buf := bytes.Buffer{}
-		err := t.Execute(&buf, map[string]interface{}{"file": file})
+		err := t.Execute(&buf, map[string]interface{}{"self": item})
 		if err != nil {
 			logger.Error(err, "render cmd", "id", i)
 			continue
@@ -79,7 +69,7 @@ func processor(i int, biz chan string, admin chan int, t *template.Template, sep
 			panic(err)
 		}
 
-		logger.Info("finish", "id", i, "command", raw)
+		logger.Info("finish", "id", i, "cmd", raw)
 	}
 }
 

@@ -13,7 +13,7 @@
 
 ## Overview
 
-Multiple is an open-source command line tool, which can read input and separate into multiple sub taks to accerlerate large scale jobs.
+Multiple is an open-source command line tool, which can read input and separate into multiple subtasks to accelerate large scale jobs' execution.
 
 ## Partners and Users
 
