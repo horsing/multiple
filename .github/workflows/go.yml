@@ -26,3 +26,7 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+      
+    - name: OSSF Scorecard action
+      uses: ossf/scorecard-action@v2.3.1
+  
