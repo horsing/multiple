@@ -83,13 +83,11 @@ func main() {
 			switch *v {
 			case "-", "stdin", "/dev/stdin", "0", "/dev/0":
 				cfg.in = os.Stdin
-				break
 			default:
 				in, fn := open(arg)
 				cfg.in = in
 				defer fn(in)
 			}
-			break
 		case arg == "-s" || arg == "--sep" || strings.HasPrefix(arg, "--sep="):
 			m, v, o := parse(false, "-s", "--sep", arg, os.Args[i+1:]...)
 			if !m {
@@ -97,7 +95,6 @@ func main() {
 			}
 			i += o
 			cfg.sep = *v
-			break
 		case arg == "-n" || arg == "--cpu" || strings.HasPrefix(arg, "--cpu="):
 			m, v, o := parse(false, "-n", "--cpu", arg, os.Args[i+1:]...)
 			if !m {
@@ -112,9 +109,7 @@ func main() {
 			}
 			i += o
 			cfg.command = *v
-			break
 		default:
-			println("Unknown argument", arg)
 		}
 	}
 
