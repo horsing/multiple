@@ -1,6 +1,6 @@
 # Multiple
 
-[![Build Status](https://github.com/horsing/multiple/actions/workflows/ci.yml/badge.svg)](https://github.com/horsing/multiple/actions/workflows/ci.yml)
+[![Build Status](https://github.com/horsing/multiple/actions/workflows/go.yml/badge.svg)](https://github.com/horsing/multiple/actions/workflows/ci.yml)
 [![LICENSE](https://img.shields.io/github/license/horsing/multiple.svg)](https://github.com/horsing/multiple/blob/master/LICENSE)
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/horsing/multiple)](https://goreportcard.com/report/github.com/horsing/multiple)
